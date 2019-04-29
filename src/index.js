@@ -1,62 +1,32 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types'
 import './index.css';
 import * as serviceWorker from './serviceWorker';
+
 import Header from './views/Header'
 import Content from './views/Content'
 
-function createStore (reducer) {
-  let state = null
-  let listeners = []
-  let subscribe = (listener) => listeners.push(listener)
-  let getState = () => state
-  let dispatch = (action) => {
-    state = reducer(state, action)
-    listeners.forEach(listener => listener())
-  }
-  dispatch({})
-  return {getState, dispatch, subscribe}
-}
-
-const themeReducer = (state, action = {}) => {
-  if (!state) {
-    return {
-      themeColor: 'red'
-    }
-  }
-  switch (action.type) {
-    case 'CHANGE_COLOR': 
-      return {...state, themeColor: action.themeColor}
-    default: 
-      return state
-  }
-}
+import Provider from './react-redux/Provider'
+import { createStore } from './react-redux/store'
+import { themeReducer } from './react-redux/reducer'
 
 const store = createStore(themeReducer)
 
-class Index extends React.Component {
-  static childContextTypes = {
-    store: PropTypes.object
-  }
-
-  getChildContext () {
-    return {
-      store: store
-    }
-  }
-
-  render () {
-    return (
-      <React.Fragment>
-        <Header />
-        <Content />
-      </React.Fragment>
-    )
-  }
+function Index () {
+  return (
+    <React.Fragment>
+      <Header />
+      <Content />
+    </React.Fragment>
+  )
 }
 
-ReactDOM.render(<Index />, document.getElementById('root'));
+ReactDOM.render(
+  <Provider store={store}>
+    <Index />
+  </Provider>,
+  document.getElementById('root')
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
